@@ -48,7 +48,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Switch } from "@/components/ui/switch"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import z from "zod"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface SubcategoriesPageProps {

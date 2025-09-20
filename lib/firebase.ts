@@ -1,25 +1,29 @@
-import { initializeApp, getApps, getApp } from "firebase/app"
-import { getAuth } from "firebase/auth"
-import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore"
-import { getStorage } from "firebase/storage"
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app"
+import { getAuth, Auth } from "firebase/auth"
+import { getFirestore, Firestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore"
+import { getStorage, FirebaseStorage } from "firebase/storage"
 import { firebaseConfig, websiteInfo } from "./firebase-config"
 
-let firebaseApp
+let firebaseApp: FirebaseApp | undefined
 try {
   firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 } catch (error: any) {
   console.error("Firebase initialization error:", error.message)
 }
 
-let auth, db, storage
+let auth: Auth | undefined
+let db: Firestore | undefined
+let storage: FirebaseStorage | undefined
 
 try {
-  auth = getAuth(firebaseApp)
-  db = getFirestore(firebaseApp)
-  storage = getStorage(firebaseApp)
+  if (firebaseApp) {
+    auth = getAuth(firebaseApp)
+    db = getFirestore(firebaseApp)
+    storage = getStorage(firebaseApp)
+  }
 
   // Enable persistence only if we're in the browser and haven't already enabled it
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && db) {
     // Check if persistence is already enabled by trying to enable it
     // and catching the error if it's already been called
     enableMultiTabIndexedDbPersistence(db).catch((err) => {

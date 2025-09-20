@@ -117,7 +117,7 @@ export function DashboardSidebar({ isOpen, isIconOnly, isMobile, closeMobileMenu
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
     contentManagement: true, // Default to expanded
     immigration: false, // Default to collapsed
-    admin: false, // Add admin menu state
+    admin: true, // Default to expanded to show Clients
   })
 
   const toggleMenu = (menu: string) => {
@@ -167,6 +167,8 @@ export function DashboardSidebar({ isOpen, isIconOnly, isMobile, closeMobileMenu
     pathname === "/dashboard/admin/quotations" || pathname.startsWith("/dashboard/admin/quotations/")
   const isAdminProductsActive =
     pathname === "/dashboard/admin/products" || pathname.startsWith("/dashboard/admin/products/")
+  const isAdminClientsActive =
+    pathname === "/dashboard/admin/clients" || pathname.startsWith("/dashboard/admin/clients/")
 
   // Ensure content management is expanded if any of its subitems are active
   useEffect(() => {
@@ -186,7 +188,7 @@ export function DashboardSidebar({ isOpen, isIconOnly, isMobile, closeMobileMenu
     }
 
     // Ensure admin is expanded if any of its subitems are active
-    if (isAdminBookingActive || isAdminQuotationsActive || isAdminProductsActive) {
+    if (isAdminBookingActive || isAdminQuotationsActive || isAdminProductsActive || isAdminClientsActive) {
       setExpandedMenus((prev) => ({
         ...prev,
         admin: true,
@@ -204,6 +206,7 @@ export function DashboardSidebar({ isOpen, isIconOnly, isMobile, closeMobileMenu
     isAdminBookingActive,
     isAdminQuotationsActive,
     isAdminProductsActive,
+    isAdminClientsActive,
   ])
 
   return (
@@ -380,6 +383,12 @@ export function DashboardSidebar({ isOpen, isIconOnly, isMobile, closeMobileMenu
                   href="/dashboard/admin/products"
                   label="Products"
                   isActive={isAdminProductsActive}
+                  onClick={undefined}
+                />
+                <SubNavItem
+                  href="/dashboard/admin/clients"
+                  label="Clients"
+                  isActive={isAdminClientsActive}
                   onClick={undefined}
                 />
               </div>

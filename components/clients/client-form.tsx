@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { CheckCircle, Loader2 } from "lucide-react"
 import { SubscriptionPlan, SubscriptionPlanType, BillingCycle } from "@/types/subscription"
+import { auth } from "@/lib/firebase"
 
 interface ClientFormData {
   // Company data
@@ -173,6 +174,18 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
       return
     }
 
+    // Get current authenticated user
+    if (!auth) {
+      alert("Authentication service not available")
+      return
+    }
+
+    const currentUser = auth.currentUser
+    if (!currentUser) {
+      alert("You must be logged in to create a client")
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -181,7 +194,10 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          uid: currentUser.uid,
+        }),
       })
 
       const data = await response.json()

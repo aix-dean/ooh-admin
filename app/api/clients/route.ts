@@ -127,6 +127,8 @@ export async function POST(request: NextRequest) {
       billingCycle,
       // Project data
       project_name,
+      // User ID from authenticated client
+      uid,
     } = body
 
     if (!db) {
@@ -134,18 +136,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate required fields
-    if (!name || !planType || !billingCycle) {
+    if (!name || !planType || !billingCycle || !uid) {
       return NextResponse.json(
-        { error: "Missing required fields: name, planType, billingCycle" },
+        { error: "Missing required fields: name, planType, billingCycle, uid" },
         { status: 400 }
       )
     }
 
     // Generate license key
-    const licenseKey = generateLicenseKey()
-
-    // Get current user ID from authentication
-    const uid = getCurrentUserId()
+    const licenseKey = generateLicenseKey(name, planType, billingCycle)
 
     // Calculate subscription dates
     const startDate = new Date()
@@ -216,10 +215,9 @@ export async function POST(request: NextRequest) {
       created: serverTimestamp(), // Use Firestore server timestamp
       updated: serverTimestamp(), // Use Firestore server timestamp
       deleted: false,
-      tenant_id: "current-tenant-id", // Replace with actual tenant ID
     }
 
-    const projectRef = doc(collection(db, "projects"))
+    const projectRef = doc(collection(db, "licenses"))
     await setDoc(projectRef, projectData)
 
     return NextResponse.json({
@@ -237,28 +235,67 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Helper function to get current user ID
-function getCurrentUserId(): string {
-  if (!auth) {
-    throw new Error("Authentication not initialized")
-  }
-
-  const user = auth.currentUser
-  if (!user) {
-    throw new Error("User not authenticated")
-  }
-
-  return user.uid
-}
 
 // Helper functions
-function generateLicenseKey(): string {
+function generateLicenseKey(
+  companyName?: string,
+  planType?: string,
+  billingCycle?: string
+): string {
+  const timestamp = Date.now().toString()
+  const companyPrefix = companyName
+    ? companyName.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X')
+    : 'XXX'
+
+  // Plan type abbreviation
+  const planAbbrev = planType
+    ? planType.substring(0, 2).toUpperCase()
+    : 'TR'
+
+  // Billing cycle abbreviation
+  const cycleAbbrev = billingCycle === 'annually' ? 'AN' : 'MO'
+
+  // Generate 6 random characters
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  let result = ""
-  for (let i = 0; i < 16; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  let randomPart = ""
+  for (let i = 0; i < 6; i++) {
+    randomPart += chars.charAt(Math.floor(Math.random() * chars.length))
   }
-  return result
+
+  // Create base key without check digit
+  const baseKey = `${companyPrefix}-${planAbbrev}-${cycleAbbrev}-${timestamp}-${randomPart}`
+
+  // Calculate check digit
+  const checkDigit = calculateCheckDigit(baseKey)
+
+  // Format: PREFIX-PLAN-CYCLE-CREATED-RANDOM-CHECKDIGIT
+  return `${baseKey}-${checkDigit}`
+}
+
+function calculateCheckDigit(key: string): number {
+  let sum = 0
+  const cleanKey = key.replace(/-/g, '')
+
+  for (let i = 0; i < cleanKey.length; i++) {
+    const char = cleanKey[i]
+    const value = isNaN(parseInt(char))
+      ? char.charCodeAt(0) - 55
+      : parseInt(char)
+    sum += value
+  }
+
+  return sum % 10
+}
+
+export function validateLicenseKey(key: string): boolean {
+  if (!key || key.split('-').length !== 6) return false
+
+  const parts = key.split('-')
+  const baseKey = `${parts[0]}-${parts[1]}-${parts[2]}-${parts[3]}-${parts[4]}`
+  const providedCheckDigit = parseInt(parts[5])
+  const calculatedCheckDigit = calculateCheckDigit(baseKey)
+
+  return providedCheckDigit === calculatedCheckDigit
 }
 
 function calculateEndDate(startDate: Date, billingCycle: string): Date | null {

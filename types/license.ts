@@ -1,8 +1,8 @@
-export interface ProjectData {
+export interface LicenseData {
   id: string
   uid: string
   license_key: string
-  project_name: string
+  license_name: string
   company_name: string
   company_location: string
   company_website: string

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     let projectsQuery = query(
-      collection(db, "projects"),
+      collection(db, "licenses"),
       where("deleted", "==", false),
       orderBy("created", "desc")
     )

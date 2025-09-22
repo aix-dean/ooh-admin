@@ -83,11 +83,21 @@ export default function ClientDetailsPage() {
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "N/A"
     const d = typeof date === "string" ? new Date(date) : date
+    if (!(d instanceof Date) || isNaN(d.getTime())) return "N/A"
     return d.toLocaleDateString()
   }
 
   const formatCurrency = (amount: number) => {
     return `₱${amount.toLocaleString()}`
+  }
+
+  const maskLicenseKey = (key: string) => {
+    if (!key || key.length < 8) return key
+    const firstPart = key.substring(0, 4)
+    const lastPart = key.substring(key.length - 4)
+    const maskedLength = key.length - 8
+    const mask = '*'.repeat(maskedLength)
+    return `${firstPart}${mask}${lastPart}`
   }
 
   if (loading) {
@@ -337,7 +347,7 @@ export default function ClientDetailsPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-500">License Key</label>
                   <p className="text-sm font-mono text-gray-900 bg-gray-100 p-2 rounded">
-                    {subscription.licenseKey}
+                    {maskLicenseKey(subscription.licenseKey)}
                   </p>
                 </div>
 
@@ -375,7 +385,7 @@ export default function ClientDetailsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FolderOpen className="h-5 w-5" />
-                  Project
+                  License
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -387,7 +397,7 @@ export default function ClientDetailsPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-500">License Key</label>
                   <p className="text-sm font-mono text-gray-900 bg-gray-100 p-2 rounded">
-                    {project.license_key}
+                    {maskLicenseKey(project.license_key)}
                   </p>
                 </div>
 
@@ -436,11 +446,11 @@ export default function ClientDetailsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FolderOpen className="h-5 w-5" />
-                  Project
+                  License
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-500">No project found</p>
+                <p className="text-gray-500">No license found</p>
               </CardContent>
             </Card>
           )}

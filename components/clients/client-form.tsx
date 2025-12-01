@@ -39,6 +39,7 @@ interface ClientFormData {
   // Subscription data
   planType: SubscriptionPlanType
   billingCycle: BillingCycle
+  product: string
 
   // Project data
   project_name: string
@@ -77,6 +78,7 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
     size: initialData?.size || "",
     planType: initialData?.planType || "trial",
     billingCycle: initialData?.billingCycle || "monthly",
+    product: initialData?.product || "",
     project_name: initialData?.project_name || "",
   })
 
@@ -174,6 +176,11 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
       return
     }
 
+    if (!formData.product.trim()) {
+      alert("Product is required")
+      return
+    }
+
     // Get current authenticated user
     if (!auth) {
       alert("Authentication service not available")
@@ -244,12 +251,13 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Company Name *</Label>
+                <Label htmlFor="name">Company Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   placeholder="Enter company name"
+                  className="focus:border-red-500"
                   required
                 />
               </div>
@@ -413,13 +421,14 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.point_person.email}
                   onChange={(e) => handlePointPersonChange("email", e.target.value)}
                   placeholder="email@example.com"
+                  className="focus:border-red-500"
                   required
                 />
               </div>
@@ -435,13 +444,14 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="password">Password *</Label>
+                <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
                 <Input
                   id="password"
                   type="password"
                   value={formData.point_person.password}
                   onChange={(e) => handlePointPersonChange("password", e.target.value)}
                   placeholder="Enter password"
+                  className="focus:border-red-500"
                   required
                 />
               </div>
@@ -465,7 +475,7 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
             <CardTitle>Subscription Plan</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="planType">Plan Type</Label>
                 <Select
@@ -496,6 +506,21 @@ export function ClientForm({ initialData, onSubmit }: ClientFormProps) {
                   <SelectContent>
                     <SelectItem value="monthly">Monthly</SelectItem>
                     <SelectItem value="annually">Annually</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="product">Product <span className="text-red-500">*</span></Label>
+                <Select
+                  value={formData.product}
+                  onValueChange={(value) => handleInputChange("product", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="OH Plus">OH Plus</SelectItem>
+                    <SelectItem value="Boohk">Boohk</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

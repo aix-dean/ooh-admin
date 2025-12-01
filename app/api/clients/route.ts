@@ -125,6 +125,7 @@ export async function POST(request: NextRequest) {
       // Subscription data
       planType,
       billingCycle,
+      product,
       // Project data
       project_name,
       // User ID from authenticated client
@@ -170,6 +171,7 @@ export async function POST(request: NextRequest) {
       description,
       industry,
       size,
+      product: product ? product.toLowerCase() : "",
       created_at: serverTimestamp(),
       created_by: uid,
       updated_at: serverTimestamp(),

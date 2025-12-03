@@ -14,7 +14,7 @@ import {
   signInWithPopup,
 } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
-import { auth, db } from "@/lib/firebase"
+import { auth, getDb } from "@/lib/firebase"
 import { tenantConfig } from "@/lib/tenant-service"
 
 // Define the user data interface to match Firestore structure
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Function to fetch user data from Firestore
   const fetchUserData = async (uid: string) => {
     try {
-      const docRef = doc(db, "iboard_users", uid)
+      const docRef = doc(getDb(), "iboard_users", uid)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
@@ -170,7 +170,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Check if this is a new user and create Firestore record if needed
     if (result.user) {
-      const docRef = doc(db, "iboard_users", result.user.uid)
+      const docRef = doc(getDb(), "iboard_users", result.user.uid)
       const docSnap = await getDoc(docRef)
 
       if (!docSnap.exists()) {
@@ -222,7 +222,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Also update in Firestore
       if (userData) {
-        const userRef = doc(db, "iboard_users", auth.currentUser.uid)
+        const userRef = doc(getDb(), "iboard_users", auth.currentUser.uid)
         await setDoc(
           userRef,
           {

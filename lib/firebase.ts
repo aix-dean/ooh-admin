@@ -70,6 +70,14 @@ const checkFirestoreConnection = async (): Promise<boolean> => {
   }
 }
 
+// Safe getter for Firestore db instance
+const getDb = (): Firestore => {
+  if (!db) {
+    throw new Error("Firestore not initialized. Check Firebase config and ensure Firestore is enabled.")
+  }
+  return db
+}
+
 export {
   firebaseApp,
   auth,
@@ -78,5 +86,6 @@ export {
   isFirebaseInitialized,
   getInitializationError,
   checkFirestoreConnection,
+  getDb,
   websiteInfo,
 }

@@ -5,11 +5,11 @@
 
 import { getAuth } from "firebase/auth"
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore"
-import { firebaseApp, db } from "./firebase"
+import { firebaseApp, getDb } from "./firebase"
 
 // Tenant configuration
 export const tenantConfig = {
-  tenantId: "ohshop-admin-mnenv", // Updated tenant ID
+  tenantId: process.env.TENANT_ID, // Updated tenant ID
   displayName: "OH Shop Admin",
   environment: "production",
   region: "asia-southeast1",
@@ -39,13 +39,25 @@ export function getTenantAuth() {
 }
 
 // Tenant metadata collection reference
-const tenantMetadataRef = collection(db, "tenant-metadata")
-const currentTenantRef = doc(tenantMetadataRef, tenantConfig.tenantId)
+const tenantMetadataRef = collection(getDb(), "tenant-metadata")
+
+// Function to get current tenant ref, only if tenantId exists
+const getCurrentTenantRef = () => {
+  if (!tenantConfig.tenantId) {
+    throw new Error("Tenant ID not configured")
+  }
+  return doc(tenantMetadataRef, tenantConfig.tenantId)
+}
 
 // Check if tenant exists and is properly configured
 export async function verifyTenantConfiguration(): Promise<boolean> {
   try {
-    const tenantDoc = await getDoc(currentTenantRef)
+    if (!tenantConfig.tenantId) {
+      console.warn("Tenant ID not configured, skipping tenant verification")
+      return false
+    }
+
+    const tenantDoc = await getDoc(getCurrentTenantRef())
 
     if (!tenantDoc.exists()) {
       console.warn("Tenant configuration not found. Creating default configuration...")
@@ -63,7 +75,11 @@ export async function verifyTenantConfiguration(): Promise<boolean> {
 // Initialize tenant configuration if it doesn't exist
 export async function initializeTenantConfiguration(): Promise<void> {
   try {
-    await setDoc(currentTenantRef, {
+    if (!tenantConfig.tenantId) {
+      throw new Error("Tenant ID not configured")
+    }
+
+    await setDoc(getCurrentTenantRef(), {
       tenantId: tenantConfig.tenantId,
       displayName: tenantConfig.displayName,
       environment: tenantConfig.environment,
@@ -91,7 +107,11 @@ export async function initializeTenantConfiguration(): Promise<void> {
 // Get tenant configuration
 export async function getTenantMetadata() {
   try {
-    const tenantDoc = await getDoc(currentTenantRef)
+    if (!tenantConfig.tenantId) {
+      throw new Error("Tenant ID not configured")
+    }
+
+    const tenantDoc = await getDoc(getCurrentTenantRef())
 
     if (!tenantDoc.exists()) {
       throw new Error("Tenant configuration not found")
@@ -107,7 +127,11 @@ export async function getTenantMetadata() {
 // Update tenant configuration
 export async function updateTenantMetadata(updates: Partial<any>) {
   try {
-    await updateDoc(currentTenantRef, updates)
+    if (!tenantConfig.tenantId) {
+      throw new Error("Tenant ID not configured")
+    }
+
+    await updateDoc(getCurrentTenantRef(), updates)
     console.log("Tenant configuration updated successfully")
   } catch (error) {
     console.error("Error updating tenant metadata:", error)
@@ -118,5 +142,5 @@ export async function updateTenantMetadata(updates: Partial<any>) {
 // Get tenant-specific collection
 export function getTenantCollection(collectionName: string) {
   const tenantPrefix = getTenantCollectionPrefix()
-  return collection(db, `${tenantPrefix}/${collectionName}`)
+  return collection(getDb(), `${tenantPrefix}/${collectionName}`)
 }

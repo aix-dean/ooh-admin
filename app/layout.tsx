@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "OH! Shop Admin - Dev",
   description: "Admin dashboard for OOH SHOP - Development Environment",
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export default function RootLayout({
@@ -21,15 +21,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scrollbar-hide">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light">
-          <AuthProvider>
-            {children}
-            <ToastProvider />
-          </AuthProvider>
-        </ThemeProvider>
-      </body>
+    <html lang="en">
+     <body className="overflow-hidden">
+       <ThemeProvider attribute="class" defaultTheme="light">
+        <AuthProvider children={children}>
+          {children}
+          <ToastProvider />
+        </AuthProvider>
+      </ThemeProvider>
+     </body>
+
     </html>
   )
 }

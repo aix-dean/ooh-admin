@@ -1,11 +1,12 @@
 // Firebase configuration for OH App - Development
 export const firebaseConfig = {
-  apiKey: "AIzaSyBByUHvQmjYdalF2C1UIpzn-onB3iXGMhc",
-  authDomain: "oh-app-bcf24.firebaseapp.com",
-  projectId: "oh-app-bcf24",
-  storageBucket: "oh-app-bcf24.appspot.com",
-  messagingSenderId: "272363630855",
-  appId: "1:272363630855:web:820601c723e85625d915a2",// You may need to update this with the actual app ID
+  apiKey: "AIzaSyA2ZYkuSy0TU-5NYthX6RTL_XyCJlWn6oI",
+  authDomain: "oh-app---dev.firebaseapp.com",
+  projectId: "oh-app---dev",
+  storageBucket: "oh-app---dev.appspot.com",
+  messagingSenderId: "1022252630221",
+  appId: "1:1022252630221:web:20f94ad84ca7eb18b6e984",
+  measurementId: "G-9HK00QW624"
 }
 
 // Public-facing website information
@@ -17,7 +18,7 @@ export const websiteInfo = {
 
 // GCP Organization information (for reference)
 export const gcpInfo = {
-  projectNumber: "272363630855",
+  projectNumber: "1022252630221",
   parentOrganization: "organizations/414953599697",
   privateKeyId: "8eaa6274c3ebaebc9d02baeef2449f395f4b089a",
 }
